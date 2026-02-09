@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"test/models"
 	"test/services"
 	"time"
@@ -55,11 +56,16 @@ func (h *SubscriptionHandler) CreateSubscription(c *fiber.Ctx) error {
 
 	err := h.subscriptionService.CreateSubscription(subscription)
 	if err != nil {
+		log.Printf("[ERROR CREATE] User=%s Error=%v", request.UserID, err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to create subscription: " + err.Error(),
 		})
 	}
+
+	log.Printf("[CREATE] ID=%d User=%s Service=%s Price=%d",
+		subscription.ID, subscription.UserID, subscription.ServiceName, subscription.Price)
+
 	return c.JSON(models.SubscriptionResponse{
 		Status:  true,
 		Message: "success",
@@ -89,16 +95,20 @@ func (h *SubscriptionHandler) GetSubscription(c *fiber.Ctx) error {
 	subscription, err := h.subscriptionService.GetSubscription(id)
 	if err != nil {
 		if err.Error() == "subscription not found" {
+			log.Printf("[GET] Subscription not found: ID=%d", id)
 			return c.Status(404).JSON(models.ErrorResponse{
 				Status:  false,
 				Message: "subscription not found",
 			})
 		}
+		log.Printf("[ERROR GET] ID=%d Error=%v", id, err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to get subscription: " + err.Error(),
 		})
 	}
+
+	log.Printf("[GET] ID=%d", id)
 
 	return c.JSON(models.SubscriptionResponse{
 		Status:  true,
@@ -133,11 +143,14 @@ func (h *SubscriptionHandler) DeleteSubscription(c *fiber.Ctx) error {
 				Message: "subscription not found",
 			})
 		}
+		log.Printf("[ERROR DELETE] ID=%d Error=%v", id, err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to delete subscription: " + err.Error(),
 		})
 	}
+
+	log.Printf("[DELETE] ID=%d", id)
 
 	return c.JSON(models.SuccessResponse{
 		Status:  true,
@@ -167,11 +180,15 @@ func (h *SubscriptionHandler) ListSubscriptions(c *fiber.Ctx) error {
 
 	data, err := h.subscriptionService.ListSubscriptions(page, limit)
 	if err != nil {
+		log.Printf("[ERROR LIST] Page=%d Limit=%d Error=%v", page, limit, err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to list subscriptions: " + err.Error(),
 		})
 	}
+
+	log.Printf("[LIST] Page=%d Limit=%d Count=%d Total=%d",
+		page, limit, len(data.Subscriptions), data.Total)
 
 	return c.JSON(models.ListResponse{
 		Status:  true,
@@ -218,11 +235,14 @@ func (h *SubscriptionHandler) UpdateSubscription(c *fiber.Ctx) error {
 				Message: "subscription not found",
 			})
 		}
+		log.Printf("[ERROR UPDATE] ID=%d Error=%v", id, err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to update subscription: " + err.Error(),
 		})
 	}
+
+	log.Printf("[UPDATE] ID=%d", id)
 
 	return c.JSON(models.SubscriptionResponse{
 		Status:  true,
@@ -262,11 +282,15 @@ func (h *SubscriptionHandler) GetTotalCost(c *fiber.Ctx) error {
 
 	total, err := h.subscriptionService.GetTotalCost(&request)
 	if err != nil {
+		log.Printf("[ERROR TOTAL] Error=%v", err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Status:  false,
 			Message: "failed to get total cost: " + err.Error(),
 		})
 	}
+
+	log.Printf("[TOTAL] Period=%s to %s Total=%d",
+		request.PeriodStart, request.PeriodEnd, total.Total)
 
 	return c.JSON(models.TotalResponse{
 		Status:  true,
