@@ -3,7 +3,7 @@
 ### Запуск через Docker Compose
 
 ```bash
-docker-compose up -d
+docker-compose up
 ```
 
 Приложение будет доступно по адресу: `http://localhost:4001`
