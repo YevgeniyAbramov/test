@@ -1,0 +1,41 @@
+name: subscription-api
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: subscription_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: subscription_app
+    environment:
+      - port=4001
+      - db_user=admin
+      - db_password=password123
+      - db_name=test
+      - db_host=postgres
+      - db_port=5432
+      - db_type=postgres
+      - db_sslmode=disable
+    ports:
+      - "4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

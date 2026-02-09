@@ -1,0 +1,317 @@
+basePath: /
+definitions:
+  models.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        example: 10-2026
+        type: string
+      price:
+        example: 1500
+        type: integer
+      service_name:
+        example: Netflix
+        type: string
+      start_date:
+        example: 01-2026
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status:
+        example: false
+        type: boolean
+    type: object
+  models.ListResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.ListSubscriptionsResponse'
+      message:
+        type: string
+      status:
+        example: true
+        type: boolean
+    type: object
+  models.ListSubscriptionsResponse:
+    properties:
+      subscriptions:
+        items:
+          $ref: '#/definitions/models.Subscription'
+        type: array
+      total:
+        type: integer
+    type: object
+  models.Subscription:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: integer
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.SubscriptionResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Subscription'
+      message:
+        type: string
+      status:
+        example: true
+        type: boolean
+    type: object
+  models.SuccessResponse:
+    properties:
+      message:
+        type: string
+      status:
+        example: true
+        type: boolean
+    type: object
+  models.TotalCostResponse:
+    properties:
+      total:
+        type: integer
+    type: object
+  models.TotalResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.TotalCostResponse'
+      message:
+        type: string
+      status:
+        example: true
+        type: boolean
+    type: object
+  models.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        example: 12-2026
+        type: string
+      price:
+        example: 500
+        type: integer
+      service_name:
+        example: Spotify
+        type: string
+      start_date:
+        example: 02-2026
+        type: string
+    type: object
+host: localhost:4001
+info:
+  contact: {}
+  description: |-
+    REST API для управления и агрегации пользовательских онлайн-подписок.
+    Позволяет создавать, обновлять, удалять и получать информацию о подписках.
+  title: Subscriptions API
+  version: "1.0"
+paths:
+  /api/v1/subscriptions/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.SubscriptionResponse'
+        "400":
+          description: Невалидный запрос
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать подписку
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/{id}:
+    delete:
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Невалидный ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Удалить подписку
+      tags:
+      - subscriptions
+    get:
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.SubscriptionResponse'
+        "400":
+          description: Невалидный ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить подписку по ID
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Поля для обновления
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.SubscriptionResponse'
+        "400":
+          description: Невалидный запрос
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Обновить подписку
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/list:
+    get:
+      parameters:
+      - default: 1
+        description: Страница
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.ListResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Список подписок
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/total:
+    get:
+      parameters:
+      - description: Начало периода (MM-YYYY)
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: Конец периода (MM-YYYY)
+        in: query
+        name: end
+        required: true
+        type: string
+      - description: Фильтр по UUID пользователя
+        in: query
+        name: user_id
+        type: string
+      - description: Фильтр по названию подписки
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успеx
+          schema:
+            $ref: '#/definitions/models.TotalResponse'
+        "400":
+          description: Невалидные параметры
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Суммарная стоимость за период
+      tags:
+      - subscriptions
+swagger: "2.0"
